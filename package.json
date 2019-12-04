@@ -18,5 +18,8 @@
   "bugs": {
     "url": "https://github.com/danieladams456/speedloader/issues"
   },
-  "homepage": "https://github.com/danieladams456/speedloader#readme"
+  "homepage": "https://github.com/danieladams456/speedloader#readme",
+  "dependencies": {
+    "@aws-sdk/client-sqs-node": "0.1.0-preview.11"
+  }
 }
