@@ -11,7 +11,7 @@ const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs-node");
 const QUEUE_URL = process.env.QUEUE_URL;
 const AWS_PROFILE = process.env.AWS_PROFILE;
 const TOTAL_MESSAGES = 10_000;
-const CHUNK_SIZE = 100;
+const CHUNK_SIZE = 200;
 
 const chunk = (arr, size) =>
   Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
