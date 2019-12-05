@@ -10,21 +10,41 @@
 const { SQSClient, SendMessageCommand } = require("@aws-sdk/client-sqs-node");
 const QUEUE_URL = process.env.QUEUE_URL;
 const AWS_PROFILE = process.env.AWS_PROFILE;
+const TOTAL_MESSAGES = 10_000;
+const CHUNK_SIZE = 100;
 
-async function main() {
+const chunk = (arr, size) =>
+  Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+    arr.slice(i * size, i * size + size)
+  );
+
+const main = async () => {
   const sqs = new SQSClient({ profile: AWS_PROFILE });
-  const command = new SendMessageCommand({
-    QueueUrl: QUEUE_URL,
-    MessageBody: "test me"
-  });
 
-  try {
-    const res = await sqs.send(command);
-    console.log(res);
-  } catch (error) {
-    console.error(error);
+  console.log("generating test data");
+  const testData = Array.from(Array(TOTAL_MESSAGES).keys()).map(x =>
+    x.toString()
+  );
+  const chunkedTestData = chunk(testData, CHUNK_SIZE);
+
+  for (const [i, testDataChunk] of chunkedTestData.entries()) {
+    const commands = testDataChunk.map(
+      item =>
+        new SendMessageCommand({
+          QueueUrl: QUEUE_URL,
+          MessageBody: item
+        })
+    );
+    const promises = commands.map(command => sqs.send(command));
+
+    try {
+      await Promise.all(promises);
+      console.log("finished batch", i);
+    } catch (error) {
+      console.error(error);
+    }
   }
-}
+};
 
 // https://nodejs.org/api/modules.html#modules_accessing_the_main_module
 if (require.main === module) {
